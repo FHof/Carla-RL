@@ -22,6 +22,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 import keras.backend.tensorflow_backend as backend
 from keras.optimizers import Adam
 from keras.models import load_model, Model
+from keras.backend import set_session
 sys.stdin = stdin
 sys.stderr = stderr
 
@@ -36,6 +37,8 @@ class ARTDQNAgent:
         # Set to show an output from Conv2D layer
         self.show_conv_cam = (id + 1) in settings.CONV_CAM_AGENTS
 
+        self.sess = tf.Session()
+
         # Main model (agent does not use target model)
         self.model = self.create_model(prediction=True)
 
@@ -47,6 +50,8 @@ class ARTDQNAgent:
 
     # Load or create a new model (loading a model is being used only when playing or by trainer class that inherits from agent)
     def create_model(self, prediction=False):
+
+        set_session(self.sess)
 
         # If there is a patht to the model set, load model
         if self.model_path:

@@ -21,6 +21,7 @@ sys.stderr = open(os.devnull, 'w')
 import tensorflow as tf
 tf.logging.set_verbosity(tf.logging.ERROR)
 import keras.backend.tensorflow_backend as backend
+from keras.backend import set_session
 sys.stdin = stdin
 sys.stderr = stderr
 
@@ -28,6 +29,8 @@ sys.stderr = stderr
 # Trainer class
 class ARTDQNTrainer(ARTDQNAgent):
     def __init__(self, model_path):
+
+        self.sess = tf.Session()
 
         # If model path is beiong passed in - use it instead of creating a new one
         self.model_path = model_path
@@ -107,6 +110,7 @@ class ARTDQNTrainer(ARTDQNAgent):
             current_states.append((np.array([[transition[0][1]] for transition in minibatch]) - 50) / 50)
         # We need to use previously saved graph here as this is going to be called from separate thread
         with self.graph.as_default():
+            set_session(self.sess)
             current_qs_list = self.model.predict(current_states, settings.PREDICTION_BATCH_SIZE)
 
         # Get future states from minibatch, then query NN model for Q values
